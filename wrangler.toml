@@ -4,3 +4,6 @@ pages_build_output_dir = "dist/public"
 [[r2_buckets]]
 binding = 'R2'
 bucket_name = 'lgtm-images'
+
+[vars]
+IMAGES_ORIGIN = "https://lgtm-images.ryoga.dev"
