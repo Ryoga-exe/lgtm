@@ -70,7 +70,7 @@ class {
 <section>
   <div>
     <p>Ryoga.exe による LGTM 画像共有サイトです。</p>
-    <p>適当にボタンをクリックすると GitHub Markdown がコピーされます。</p>
+    <p>ボタンをクリックすると GitHub Markdown がコピーされます。</p>
   </div>
   <button disabled=state.isLoading on-click('handleClick')>
     <div aria-live="polite">${state.label}</div>
@@ -87,7 +87,7 @@ style {
       display: flex;
       justify-content: center;
       align-items: center;
-      width: 250px;
+      width: min(250px, 80vw);
       margin: 0 auto;
       padding: .9em 2em;
       border: none;

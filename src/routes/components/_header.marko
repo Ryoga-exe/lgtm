@@ -1,18 +1,41 @@
 $ const currentPath = $global.url?.pathname ?? "/";
-$ const navLinks = [
-    { href: "/", label: "ホーム" },
-    { href: "/about", label: "このサイトについて" }
-  ];
 
-<header class="site-header">
-  <a class="brand" href="/">LGTM</a>
-  <nav class="site-nav" aria-label="Primary">
+<header.container>
+  <h1.brand>
+    <a href="/">LGTM</a>
+  </h1>
+  <nav>
     <ul>
-      <for|link| of=navLinks>
-        <li class=["site-nav__item", currentPath === link.href && "is-active"]>
-          <a class="site-nav__link" href=link.href>${link.label}</a>
-        </li>
-      </for>
+      <li>
+        <a.about href="/about">About</a>
+      </li>
+      <li>
+        <a.upload href="https://forms.gle/S22V88nicEyhGty19">Upload</a>
+      </li>
     </ul>
   </nav>
 </header>
+
+style {
+  header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-block: min(1.25rem, 3vw);
+    margin-block-end: 0.5rem;
+  }
+
+  .brand {
+    font-size: 1.5rem;
+    a {
+      text-decoration: none;
+    }
+  }
+
+  nav > ul {
+    list-style: none;
+    display: flex;
+    gap: 0.5rem;
+  }
+}

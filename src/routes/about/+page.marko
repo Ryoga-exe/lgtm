@@ -1,1 +1,58 @@
-<p>Q</p>
+<section.root>
+  <div>
+    <h2>About</h2>
+    <section>
+      <h3>これは何？</h3>
+      <p>
+        <a href="https://github.com/Ryoga-exe">Ryoga.exe</a> が作った LGTM 画像共有サイトです。
+      </p>
+    </section>
+    <section>
+      <h3>LGTM 画像を投稿したい</h3>
+      <p>
+        <a href="https://forms.gle/S22V88nicEyhGty19">この Google Form</a> から申請することができます。
+        実装が面倒だったので Google Forms です、仕方ないね。
+      </p>
+    </section>
+    <section>
+      <h3>お前は誰？</h3>
+      <ul>
+        <li>
+          <a href="https://github.com/Ryoga-exe">GitHub</a>
+        </li>
+        <li>
+          <a href="https://x.com/Ryoga_exe">X (Twitter)</a>
+        </li>
+      </ul>
+    </section>
+    <section>
+      <h3>このサイトを改善したい・バグを見つけた</h3>
+      <p>
+        <a href="https://github.com/Ryoga-exe/lgtm">ここのリポジトリ</a>から適当に Issue やら PR を立ててください。
+        すみませんが、突貫工事で作ったのでクソ雑サイトです。
+        <a href="https://markojs.com/">Marko</a> を使っています、知らん技術を使ってみようとした結果こうなってしまいました。
+      </p>
+    </section>
+  </div>
+  <a href="/">トップページに戻る</a>
+</section>
+
+style {
+  .root {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  h2 {
+    margin-bottom: 1rem;
+  }
+
+  h3 {
+    margin-bottom: 0.25rem;
+  }
+
+  section {
+    margin-bottom: 1rem;
+  }
+}
