@@ -6,7 +6,13 @@ export const onRequestGet: PagesFunction<ImagesFunctionEnv> = async ({ request, 
   const cursor = url.searchParams.get('cursor') ?? undefined;
   const prefix = url.searchParams.get('prefix') ?? '';
 
-  const { objects, truncated, cursor: next } = await env.R2.list({ prefix, limit, cursor });
+  const listResult = await env.R2.list({ prefix, limit, cursor });
+  const { objects } = listResult;
+  const truncated = listResult.truncated;
+  let next: string | null = null;
+  if (listResult.truncated) {
+    next = listResult.cursor;
+  }
 
   const origin = getImagesOrigin(env);
   const items = objects.map(object => {
