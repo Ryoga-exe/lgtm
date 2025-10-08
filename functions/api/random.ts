@@ -19,7 +19,7 @@ export const onRequestGet: PagesFunction<ImagesFunctionEnv> = async ({ request, 
     {
       key: pick.key,
       url: imageUrl,
-      markdown: `![LGTM](${imageUrl})`,
+      markdown: `[![LGTM](${imageUrl})](https://lgtm.ryoga.dev)`,
       html: `<img src="${imageUrl}" alt="LGTM">`,
     },
     { cacheSeconds: 30 }
