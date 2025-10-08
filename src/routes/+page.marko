@@ -1,8 +1,39 @@
-<!doctype html>
-<html>
-  <head><meta charset="utf-8"/><title>Home</title></head>
-  <body>
-    <h1>Hello Marko</h1>
-    <p><a href="/about">About</a></p>
-  </body>
-</html>
+<section>
+  <div>
+    <p>Ryoga.exe による LGTM 画像共有サイトです。</p>
+    <p>適当にボタンをクリックすると GitHub Markdown がコピーされます。</p>
+  </div>
+  <button>
+    <div>Random Copy!</div>
+  </button>
+</section>
+
+style {
+  section {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  button {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 250px;
+      margin: 0 auto;
+      padding: .9em 2em;
+      border: none;
+      border-bottom: solid 5px #0028a0;
+      border-radius: 5px;
+      background-color: #2558d0;
+      color: #fff;
+      font-weight: 600;
+      font-size: 1em;
+      transition: .2s ease;
+      cursor: pointer;
+  }
+
+  button:hover {
+      transform: translateY(3px);
+      border-bottom-width: 2px;
+  }
+}

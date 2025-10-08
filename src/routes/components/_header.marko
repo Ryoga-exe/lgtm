@@ -1,0 +1,18 @@
+$ const currentPath = $global.url?.pathname ?? "/";
+$ const navLinks = [
+    { href: "/", label: "ホーム" },
+    { href: "/about", label: "このサイトについて" }
+  ];
+
+<header class="site-header">
+  <a class="brand" href="/">LGTM</a>
+  <nav class="site-nav" aria-label="Primary">
+    <ul>
+      <for|link| of=navLinks>
+        <li class=["site-nav__item", currentPath === link.href && "is-active"]>
+          <a class="site-nav__link" href=link.href>${link.label}</a>
+        </li>
+      </for>
+    </ul>
+  </nav>
+</header>
