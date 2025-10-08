@@ -1,10 +1,79 @@
+class {
+  onCreate() {
+    this.labels = {
+      default: "Random Copy!",
+      loading: "Copying...",
+      copied: "Copied!",
+      error: "Copy failed",
+    };
+    this.state = {
+      label: this.labels.default,
+      isLoading: false,
+    };
+    this._resetTimer = undefined;
+  }
+
+  onDestroy() {
+    if (this._resetTimer) {
+      clearTimeout(this._resetTimer);
+      this._resetTimer = undefined;
+    }
+  }
+
+  scheduleReset(delay = 2000) {
+    if (this._resetTimer) {
+      clearTimeout(this._resetTimer);
+    }
+    this._resetTimer = setTimeout(() => {
+      this.state.label = this.labels.default;
+      this._resetTimer = undefined;
+    }, delay);
+  }
+
+  async handleClick() {
+    if (this.state.isLoading) {
+      return;
+    }
+
+    this.state.isLoading = true;
+    this.state.label = this.labels.loading;
+
+    try {
+      const response = await fetch("/api/random");
+      if (!response.ok) {
+        throw new Error(`Request failed with status ${response.status}`);
+      }
+
+      const data = await response.json();
+      const markdown = data?.markdown;
+      if (!markdown) {
+        throw new Error("Missing markdown in response");
+      }
+
+      if (typeof navigator === "undefined" || !navigator.clipboard?.writeText) {
+        throw new Error("Clipboard API not available");
+      }
+
+      await navigator.clipboard.writeText(markdown);
+      this.state.label = this.labels.copied;
+      this.scheduleReset();
+    } catch (error) {
+      console.error("Failed to copy LGTM markdown", error);
+      this.state.label = this.labels.error;
+      this.scheduleReset(4000);
+    } finally {
+      this.state.isLoading = false;
+    }
+  }
+}
+
 <section>
   <div>
     <p>Ryoga.exe による LGTM 画像共有サイトです。</p>
     <p>適当にボタンをクリックすると GitHub Markdown がコピーされます。</p>
   </div>
-  <button>
-    <div>Random Copy!</div>
+  <button disabled=state.isLoading on-click('handleClick')>
+    <div aria-live="polite">${state.label}</div>
   </button>
 </section>
 
@@ -35,5 +104,10 @@ style {
   button:hover {
       transform: translateY(3px);
       border-bottom-width: 2px;
+  }
+
+  button:disabled {
+      opacity: .75;
+      cursor: not-allowed;
   }
 }
