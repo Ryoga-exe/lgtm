@@ -1,0 +1,6 @@
+name = "lgtm"
+pages_build_output_dir = "dist/public"
+
+[[r2_buckets]]
+binding = 'R2'
+bucket_name = 'lgtm-images'
