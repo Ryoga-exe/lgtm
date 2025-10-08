@@ -1,27 +1,27 @@
-export const onRequestGet: PagesFunction<{ R2: R2Bucket; IMAGES_ORIGIN: string }> =
-  async ({ request, env }) => {
-    const url = new URL(request.url);
-    const limit = Math.min(1000, Number(url.searchParams.get('pool') || '500'));
-    const prefix = '';
+import { getImagesOrigin, ImagesFunctionEnv, jsonResponse, readCappedInteger } from './utils';
 
-    const { objects } = await env.R2.list({ prefix, limit });
-    if (!objects.length) return resp({ error: 'no images' }, 404);
+const DEFAULT_PREFIX = '';
 
-    const pick = objects[Math.floor(Math.random() * objects.length)];
-    const origin = env.IMAGES_ORIGIN;
-    if (!origin) return resp({ error: 'IMAGES_ORIGIN is not set' }, 500);
-    const img = `${origin}/${pick.key}`;
+export const onRequestGet: PagesFunction<ImagesFunctionEnv> = async ({ request, env }) => {
+  const url = new URL(request.url);
+  const limit = readCappedInteger(url.searchParams, 'pool', { fallback: 500, min: 1, max: 1000 });
 
-    return resp({
+  const { objects } = await env.R2.list({ prefix: DEFAULT_PREFIX, limit });
+  if (objects.length === 0) {
+    return jsonResponse({ error: 'no images' }, { status: 404 });
+  }
+
+  const pick = objects[Math.floor(Math.random() * objects.length)];
+  const origin = getImagesOrigin(env);
+  const imageUrl = `${origin}/${pick.key}`;
+
+  return jsonResponse(
+    {
       key: pick.key,
-      url: img,
-      markdown: `![LGTM](${img})`,
-      html: `<img src="${img}" alt="LGTM">`
-    }, 200, 30);
-  };
-
-function resp(data: any, status = 200, sMaxAge?: number) {
-  const h: Record<string, string> = { 'content-type': 'application/json; charset=utf-8' };
-  if (sMaxAge) h['Cache-Control'] = `public, s-maxage=${sMaxAge}`;
-  return new Response(JSON.stringify(data), { status, headers: h });
-}
+      url: imageUrl,
+      markdown: `![LGTM](${imageUrl})`,
+      html: `<img src="${imageUrl}" alt="LGTM">`,
+    },
+    { cacheSeconds: 30 }
+  );
+};
