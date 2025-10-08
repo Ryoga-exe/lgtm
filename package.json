@@ -1,0 +1,28 @@
+{
+  "name": "lgtm",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Looks Good To Me",
+  "license": "MIT",
+  "author": "Ryoga-exe",
+  "type": "module",
+  "homepage": "https://github.com/Ryoga-exe/lgtm#readme",
+  "bugs": {
+    "url": "https://github.com/Ryoga-exe/lgtm/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Ryoga-exe/lgtm.git"
+  },
+  "scripts": {
+    "dev": "marko-run",
+    "build": "marko-run build",
+    "preview": "marko-run preview"
+  },
+  "devDependencies": {
+    "@marko/run": "^0.8.1",
+    "@marko/run-adapter-static": "^2.0.2",
+    "marko": "^5.37.60",
+    "vite": "^7.1.9"
+  }
+}
