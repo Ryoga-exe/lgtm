@@ -8,7 +8,8 @@ export const onRequestGet: PagesFunction<{ R2: R2Bucket; IMAGES_ORIGIN: string }
     if (!objects.length) return resp({ error: 'no images' }, 404);
 
     const pick = objects[Math.floor(Math.random() * objects.length)];
-    const origin = env.IMAGES_ORIGIN || 'https://lgtm-images.ryoga.dev';
+    const origin = env.IMAGES_ORIGIN;
+    if (!origin) return resp({ error: 'IMAGES_ORIGIN is not set' }, 500);
     const img = `${origin}/${pick.key}`;
 
     return resp({
