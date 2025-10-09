@@ -1,42 +1,58 @@
 class {
   onCreate() {
     this.labels = {
-      default: "Random Copy!",
-      loading: "Copying...",
-      copied: "Copied!",
-      error: "Copy failed",
+      markdown: {
+        default: "Markdown Copy!",
+        loading: "Copying...",
+        copied: "Copied!",
+        error: "Copy failed",
+      },
+      url: {
+        default: "Copy Image URL",
+        loading: "Copying...",
+        copied: "Copied!",
+        error: "Copy failed",
+      },
     };
     this.state = {
-      label: this.labels.default,
-      isLoading: false,
+      markdownLabel: this.labels.markdown.default,
+      markdownLoading: false,
+      urlLabel: this.labels.url.default,
+      urlLoading: false,
     };
-    this._resetTimer = undefined;
+    this._resetTimers = {};
   }
 
   onDestroy() {
-    if (this._resetTimer) {
-      clearTimeout(this._resetTimer);
-      this._resetTimer = undefined;
+    for (const key of Object.keys(this._resetTimers)) {
+      if (this._resetTimers[key]) {
+        clearTimeout(this._resetTimers[key]);
+        this._resetTimers[key] = undefined;
+      }
     }
   }
 
-  scheduleReset(delay = 2000) {
-    if (this._resetTimer) {
-      clearTimeout(this._resetTimer);
+  scheduleReset(buttonKey, delay = 2000) {
+    if (this._resetTimers[buttonKey]) {
+      clearTimeout(this._resetTimers[buttonKey]);
     }
-    this._resetTimer = setTimeout(() => {
-      this.state.label = this.labels.default;
-      this._resetTimer = undefined;
+    this._resetTimers[buttonKey] = setTimeout(() => {
+      this.state[`${buttonKey}Label`] = this.labels[buttonKey].default;
+      this._resetTimers[buttonKey] = undefined;
     }, delay);
   }
 
-  async handleClick() {
-    if (this.state.isLoading) {
+  async handleCopy(buttonKey) {
+    const loadingKey = `${buttonKey}Loading`;
+    const labelKey = `${buttonKey}Label`;
+    const labelSet = this.labels[buttonKey];
+
+    if (this.state[loadingKey]) {
       return;
     }
 
-    this.state.isLoading = true;
-    this.state.label = this.labels.loading;
+    this.state[loadingKey] = true;
+    this.state[labelKey] = labelSet.loading;
 
     try {
       const response = await fetch("/api/random");
@@ -45,24 +61,25 @@ class {
       }
 
       const data = await response.json();
-      const markdown = data?.markdown;
-      if (!markdown) {
-        throw new Error("Missing markdown in response");
+      const valueKey = buttonKey === "markdown" ? "markdown" : "url";
+      const text = data?.[valueKey];
+      if (!text) {
+        throw new Error(`Missing ${valueKey} in response`);
       }
 
       if (typeof navigator === "undefined" || !navigator.clipboard?.writeText) {
         throw new Error("Clipboard API not available");
       }
 
-      await navigator.clipboard.writeText(markdown);
-      this.state.label = this.labels.copied;
-      this.scheduleReset();
+      await navigator.clipboard.writeText(text);
+      this.state[labelKey] = labelSet.copied;
+      this.scheduleReset(buttonKey);
     } catch (error) {
-      console.error("Failed to copy LGTM markdown", error);
-      this.state.label = this.labels.error;
-      this.scheduleReset(4000);
+      console.error(`Failed to copy LGTM ${buttonKey}`, error);
+      this.state[labelKey] = labelSet.error;
+      this.scheduleReset(buttonKey, 4000);
     } finally {
-      this.state.isLoading = false;
+      this.state[loadingKey] = false;
     }
   }
 }
@@ -70,11 +87,18 @@ class {
 <section>
   <div>
     <p>Ryoga.exe による LGTM 画像共有サイトです。</p>
-    <p>ボタンをクリックすると GitHub Markdown がコピーされます。</p>
+    <p>ボタンをクリックするとランダムな画像がコピーされます。</p>
   </div>
-  <button disabled=state.isLoading on-click('handleClick')>
-    <div aria-live="polite">${state.label}</div>
-  </button>
+  <div.actions>
+    <p>GitHub Markdown 形式でコピー</p>
+    <button disabled=state.markdownLoading on-click('handleCopy', 'markdown')>
+      <div aria-live="polite">${state.markdownLabel}</div>
+    </button>
+    <p>画像 URL をコピー</p>
+    <button disabled=state.urlLoading on-click('handleCopy', 'url')>
+      <div aria-live="polite">${state.urlLabel}</div>
+    </button>
+  </div>
 </section>
 
 style {
@@ -83,31 +107,38 @@ style {
     flex-direction: column;
     gap: 2rem;
   }
+
+  .actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+  }
+
   button {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      width: min(250px, 80vw);
-      margin: 0 auto;
-      padding: .9em 2em;
-      border: none;
-      border-bottom: solid 5px #0028a0;
-      border-radius: 5px;
-      background-color: #2558d0;
-      color: #fff;
-      font-weight: 600;
-      font-size: 1em;
-      transition: .2s ease;
-      cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: min(250px, 80vw);
+    padding: .9em 2em;
+    border: none;
+    border-bottom: solid 5px #0028a0;
+    border-radius: 5px;
+    background-color: #2558d0;
+    color: #fff;
+    font-weight: 600;
+    font-size: 1em;
+    transition: .2s ease;
+    cursor: pointer;
   }
 
   button:hover {
-      transform: translateY(3px);
-      border-bottom-width: 2px;
+    transform: translateY(3px);
+    border-bottom-width: 2px;
   }
 
   button:disabled {
-      opacity: .75;
-      cursor: not-allowed;
+    opacity: .75;
+    cursor: not-allowed;
   }
 }
