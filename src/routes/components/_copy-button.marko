@@ -63,19 +63,21 @@ static async function fetchClipboardBlob(valueKey) {
     width: min(250px, 80vw);
     padding: .9em 2em;
     border: none;
-    border-bottom: solid 5px #0028a0;
     border-radius: 5px;
     background-color: #2558d0;
     color: #fff;
     font-weight: 600;
     font-size: 1em;
-    transition: .2s ease;
+    box-shadow: 0 5px 0 #0028a0;
+    transition:
+      transform .2s ease,
+      box-shadow .2s ease;
     cursor: pointer;
   }
 
   button:hover {
     transform: translateY(3px);
-    border-bottom-width: 2px;
+    box-shadow: 0 2px 0 #0028a0;
   }
 
   button:disabled {
