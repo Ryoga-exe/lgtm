@@ -1,100 +1,4 @@
-class {
-  onCreate() {
-    this.labels = {
-      markdown: {
-        default: "Markdown Copy!",
-        loading: "Copying...",
-        copied: "Copied!",
-        error: "Copy failed",
-      },
-      url: {
-        default: "Copy Image URL",
-        loading: "Copying...",
-        copied: "Copied!",
-        error: "Copy failed",
-      },
-    };
-    this.state = {
-      markdownLabel: this.labels.markdown.default,
-      markdownLoading: false,
-      urlLabel: this.labels.url.default,
-      urlLoading: false,
-    };
-    this._resetTimers = {};
-  }
-
-  onDestroy() {
-    for (const key of Object.keys(this._resetTimers)) {
-      if (this._resetTimers[key]) {
-        clearTimeout(this._resetTimers[key]);
-        this._resetTimers[key] = undefined;
-      }
-    }
-  }
-
-  scheduleReset(buttonKey, delay = 2000) {
-    if (this._resetTimers[buttonKey]) {
-      clearTimeout(this._resetTimers[buttonKey]);
-    }
-    this._resetTimers[buttonKey] = setTimeout(() => {
-      this.state[`${buttonKey}Label`] = this.labels[buttonKey].default;
-      this._resetTimers[buttonKey] = undefined;
-    }, delay);
-  }
-
-  async handleCopy(buttonKey) {
-    const loadingKey = `${buttonKey}Loading`;
-    const labelKey = `${buttonKey}Label`;
-    const labelSet = this.labels[buttonKey];
-
-    if (this.state[loadingKey]) {
-      return;
-    }
-
-    this.state[loadingKey] = true;
-    this.state[labelKey] = labelSet.loading;
-
-    try {
-      if (typeof navigator === "undefined" || !navigator.clipboard?.write || typeof ClipboardItem === "undefined") {
-        throw new Error("Clipboard API not available");
-      }
-
-      const textPromise = (async () => {
-        const response = await fetch("/api/random");
-
-        if (!response.ok) {
-          throw new Error(`Request failed with status ${response.status}`);
-        }
-
-        const data = await response.json();
-        const valueKey = buttonKey === "markdown" ? "markdown" : "url";
-        const text = data?.[valueKey];
-        if (!text) {
-          throw new Error(`Missing ${valueKey} in response`);
-        }
-
-        return new Blob([text], {
-          type: "text/plain",
-        });
-      })();
-
-      await navigator.clipboard.write([
-        new ClipboardItem({
-          "text/plain": textPromise,
-        }),
-      ]);
-
-      this.state[labelKey] = labelSet.copied;
-      this.scheduleReset(buttonKey);
-    } catch (error) {
-      console.error(`Failed to copy LGTM ${buttonKey}`, error);
-      this.state[labelKey] = labelSet.error;
-      this.scheduleReset(buttonKey, 4000);
-    } finally {
-      this.state[loadingKey] = false;
-    }
-  }
-}
+import CopyButton from "./components/_copy-button.marko";
 
 <section>
   <div>
@@ -102,18 +6,20 @@ class {
     <p>ボタンをクリックするとランダムな画像がコピーされます。</p>
   </div>
   <div.actions>
-    <p>GitHub Markdown 形式でコピー</p>
-    <button disabled=state.markdownLoading on-click('handleCopy', 'markdown')>
-      <div aria-live="polite">${state.markdownLabel}</div>
-    </button>
-    <p>画像 URL をコピー</p>
-    <button disabled=state.urlLoading on-click('handleCopy', 'url')>
-      <div aria-live="polite">${state.urlLabel}</div>
-    </button>
+    <CopyButton
+      description="GitHub Markdown 形式でコピー"
+      defaultLabel="Markdown Copy!"
+      valueKey="markdown"
+    />
+    <CopyButton
+      description="画像 URL をコピー"
+      defaultLabel="Copy Image URL"
+      valueKey="url"
+    />
   </div>
 </section>
 
-style {
+<style>
   section {
     display: flex;
     flex-direction: column;
@@ -126,31 +32,4 @@ style {
     gap: 1rem;
     align-items: center;
   }
-
-  button {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: min(250px, 80vw);
-    padding: .9em 2em;
-    border: none;
-    border-bottom: solid 5px #0028a0;
-    border-radius: 5px;
-    background-color: #2558d0;
-    color: #fff;
-    font-weight: 600;
-    font-size: 1em;
-    transition: .2s ease;
-    cursor: pointer;
-  }
-
-  button:hover {
-    transform: translateY(3px);
-    border-bottom-width: 2px;
-  }
-
-  button:disabled {
-    opacity: .75;
-    cursor: not-allowed;
-  }
-}
+</style>
