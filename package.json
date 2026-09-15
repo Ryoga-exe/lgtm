@@ -20,11 +20,12 @@
     "preview": "marko-run preview"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20251008.0",
+    "@babel/types": "^8.0.5",
+    "@cloudflare/workers-types": "^5.20260915.1",
     "@marko/run": "^0.8.1",
-    "@marko/run-adapter-static": "^2.0.2",
-    "marko": "^5.37.60",
-    "vite": "^7.1.9",
-    "wrangler": "^4.42.1"
+    "@marko/run-adapter-static": "^2.0.10",
+    "marko": "^5.39.40",
+    "vite": "^7.3.6",
+    "wrangler": "^4.131.2"
   }
 }
