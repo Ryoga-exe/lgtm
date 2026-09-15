@@ -1,11 +1,23 @@
 {
   "compilerOptions": {
-    "target": "es2021",
-    "module": "es2022",
+    "allowSyntheticDefaultImports": true,
     "lib": [
-      "ES2021"
+      "dom",
+      "ESNext"
     ],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "noImplicitOverride": true,
+    "noUnusedLocals": true,
+    "outDir": "dist",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "ESNext",
+    "verbatimModuleSyntax": true,
     "types": [
+      "vite/client",
       "@cloudflare/workers-types"
     ]
   }

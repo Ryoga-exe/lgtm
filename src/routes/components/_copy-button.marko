@@ -1,0 +1,85 @@
+static async function fetchClipboardBlob(valueKey) {
+  const response = await fetch("/api/random");
+  if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+
+  const data = await response.json();
+  const text = data?.[valueKey];
+  if (!text) throw new Error(`Missing ${valueKey} in response`);
+
+  return new Blob([text], { type: "text/plain" });
+}
+
+<let/label=input.defaultLabel>
+<let/loading=false>
+<let/resetTimer=undefined>
+
+<const/scheduleReset=(delay = 2000) => {
+  clearTimeout(resetTimer);
+  resetTimer = setTimeout(() => {
+    label = input.defaultLabel;
+    resetTimer = undefined;
+  }, delay);
+}>
+
+<const/handleCopy=async () => {
+  if (loading) return;
+
+  loading = true;
+  label = "Copying...";
+
+  try {
+    if (typeof navigator === "undefined" || !navigator.clipboard?.write || typeof ClipboardItem === "undefined") {
+      throw new Error("Clipboard API not available");
+    }
+
+    await navigator.clipboard.write([
+      new ClipboardItem({ "text/plain": fetchClipboardBlob(input.valueKey) }),
+    ]);
+    label = "Copied!";
+    scheduleReset();
+  } catch (error) {
+    console.error(`Failed to copy LGTM ${input.valueKey}`, error);
+    label = "Copy failed";
+    scheduleReset(4000);
+  } finally {
+    loading = false;
+  }
+}>
+
+<lifecycle onDestroy() {
+  clearTimeout(resetTimer);
+}/>
+
+<p>${input.description}</p>
+<button disabled=loading onClick=handleCopy>
+  <div aria-live="polite">${label}</div>
+</button>
+
+<style>
+  button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: min(250px, 80vw);
+    padding: .9em 2em;
+    border: none;
+    border-bottom: solid 5px #0028a0;
+    border-radius: 5px;
+    background-color: #2558d0;
+    color: #fff;
+    font-weight: 600;
+    font-size: 1em;
+    transition: .2s ease;
+    cursor: pointer;
+  }
+
+  button:hover {
+    transform: translateY(3px);
+    border-bottom-width: 2px;
+  }
+
+  button:disabled {
+    opacity: .75;
+    cursor: not-allowed;
+  }
+</style>
