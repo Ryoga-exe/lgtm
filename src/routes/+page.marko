@@ -55,23 +55,35 @@ class {
     this.state[labelKey] = labelSet.loading;
 
     try {
-      const response = await fetch("/api/random");
-      if (!response.ok) {
-        throw new Error(`Request failed with status ${response.status}`);
-      }
-
-      const data = await response.json();
-      const valueKey = buttonKey === "markdown" ? "markdown" : "url";
-      const text = data?.[valueKey];
-      if (!text) {
-        throw new Error(`Missing ${valueKey} in response`);
-      }
-
-      if (typeof navigator === "undefined" || !navigator.clipboard?.writeText) {
+      if (typeof navigator === "undefined" || !navigator.clipboard?.write || typeof ClipboardItem === "undefined") {
         throw new Error("Clipboard API not available");
       }
 
-      await navigator.clipboard.writeText(text);
+      const textPromise = (async () => {
+        const response = await fetch("/api/random");
+
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
+
+        const data = await response.json();
+        const valueKey = buttonKey === "markdown" ? "markdown" : "url";
+        const text = data?.[valueKey];
+        if (!text) {
+          throw new Error(`Missing ${valueKey} in response`);
+        }
+
+        return new Blob([text], {
+          type: "text/plain",
+        });
+      })();
+
+      await navigator.clipboard.write([
+        new ClipboardItem({
+          "text/plain": textPromise,
+        }),
+      ]);
+
       this.state[labelKey] = labelSet.copied;
       this.scheduleReset(buttonKey);
     } catch (error) {
